@@ -23,6 +23,14 @@ const _assetName = 'webcrypto.dart';
 
 Future<void> main(List<String> args) async {
   await build(args, (input, output) async {
+    // Skip build for non-code targets (e.g. web builds via flutter drive).
+    if (!input.config.buildCodeAssets) {
+      stdout.writeln(
+        'webcrypto: skipping native asset build (code assets not requested).',
+      );
+      return;
+    }
+
     final targetOs = input.config.code.targetOS;
     if (!_hostSupports(targetOs)) {
       stdout.writeln(

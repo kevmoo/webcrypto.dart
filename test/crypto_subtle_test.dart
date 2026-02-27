@@ -124,12 +124,14 @@ void main() {
       expect(
         () => subtle.window.crypto.getRandomValues(Uint8List(1000000).toJS),
         throwsA(
-          // dart2js throws JSDomException, dart2wasm throws _JavaScriptError.
-          // Both contain 'QuotaExceededError' in their string representation.
+          // dart2js throws JSDomException with 'QuotaExceededError' in toString.
+          // dart2wasm throws _JavaScriptError; toString() may be just
+          // 'JavaScriptError' (dart test) or include the DOM error name
+          // (flutter test).
           isA<Object>().having(
             (e) => e.toString(),
             'toString',
-            contains('QuotaExceededError'),
+            anyOf(contains('QuotaExceededError'), equals('JavaScriptError')),
           ),
         ),
       );
@@ -139,12 +141,14 @@ void main() {
       expect(
         () => subtle.window.crypto.getRandomValues(Float32List(32).toJS),
         throwsA(
-          // dart2js throws JSDomException, dart2wasm throws _JavaScriptError.
-          // Both contain 'TypeMismatchError' in their string representation.
+          // dart2js throws JSDomException with 'TypeMismatchError' in toString.
+          // dart2wasm throws _JavaScriptError; toString() may be just
+          // 'JavaScriptError' (dart test) or include the DOM error name
+          // (flutter test).
           isA<Object>().having(
             (e) => e.toString(),
             'toString',
-            contains('TypeMismatchError'),
+            anyOf(contains('TypeMismatchError'), equals('JavaScriptError')),
           ),
         ),
       );
