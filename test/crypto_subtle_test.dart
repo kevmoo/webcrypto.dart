@@ -121,27 +121,33 @@ void main() {
     });
 
     test('getRandomValues: too long', () {
-      try {
-        subtle.window.crypto.getRandomValues(Uint8List(1000000).toJS);
-      } on subtle.JSDomException catch (e) {
-        // dart2js throws QuotaExceededError
-        expect(e.name, 'QuotaExceededError');
-      } on Error catch (e) {
-        // dart2wasm throws JavaScriptError
-        expect(e.toString(), 'JavaScriptError');
-      }
+      expect(
+        () => subtle.window.crypto.getRandomValues(Uint8List(1000000).toJS),
+        throwsA(
+          // dart2js throws JSDomException, dart2wasm throws _JavaScriptError.
+          // Both contain 'QuotaExceededError' in their string representation.
+          isA<Object>().having(
+            (e) => e.toString(),
+            'toString',
+            contains('QuotaExceededError'),
+          ),
+        ),
+      );
     });
 
     test('getRandomValues: not supported type', () {
-      try {
-        subtle.window.crypto.getRandomValues(Float32List(32).toJS);
-      } on subtle.JSDomException catch (e) {
-        // dart2js throws TypeMismatchError
-        expect(e.name, 'TypeMismatchError');
-      } on Error catch (e) {
-        // dart2wasm throws JavaScriptError
-        expect(e.toString(), 'JavaScriptError');
-      }
+      expect(
+        () => subtle.window.crypto.getRandomValues(Float32List(32).toJS),
+        throwsA(
+          // dart2js throws JSDomException, dart2wasm throws _JavaScriptError.
+          // Both contain 'TypeMismatchError' in their string representation.
+          isA<Object>().having(
+            (e) => e.toString(),
+            'toString',
+            contains('TypeMismatchError'),
+          ),
+        ),
+      );
     });
   });
 
